@@ -1,21 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { getTasks, deleteTask, addTask, updateTask } from "../services/api";
-import { List, ListItem, ListItemText, IconButton, Paper, CircularProgress, TextField, Button, Stack } from "@mui/material";
+import {
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Paper,
+  CircularProgress,
+  TextField,
+  Button,
+  Stack,
+  Snackbar,
+  Alert
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import TaskEdit from '../components/TaskEdit'; // או הנתיב הנכון לפי המיקום
+import TaskEdit from '../components/TaskEdit';
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [editingTask, setEditingTask] = useState(null); // שמירה על המשימה הנוכחית בעריכה
+  const [editingTask, setEditingTask] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
+  const showMessage = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const loadTasks = async (search = "") => {
     setLoading(true);
-    const data = await getTasks(search);
-    setTasks(data);
-    setLoading(false);
+    try {
+      const data = await getTasks(search);
+      setTasks(data);
+    } catch (err) {
+      showMessage("שגיאה בטעינת משימות", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -23,15 +49,25 @@ function TaskListPage() {
   }, []);
 
   const handleDelete = async (id) => {
-    await deleteTask(id);
-    loadTasks(searchTerm);
+    try {
+      await deleteTask(id);
+      loadTasks(searchTerm);
+      showMessage("🗑️ המשימה נמחקה בהצלחה");
+    } catch {
+      showMessage("❌ שגיאה במחיקת המשימה", "error");
+    }
   };
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
-    await addTask({ title: newTaskTitle });
-    setNewTaskTitle("");
-    loadTasks(searchTerm);
+    try {
+      await addTask({ title: newTaskTitle });
+      setNewTaskTitle("");
+      loadTasks(searchTerm);
+      showMessage("✅ משימה חדשה נוספה");
+    } catch {
+      showMessage("❌ שגיאה בהוספת משימה", "error");
+    }
   };
 
   const handleSearch = (e) => {
@@ -41,17 +77,22 @@ function TaskListPage() {
   };
 
   const handleEdit = (task) => {
-    setEditingTask(task); // נפתח את חלון העריכה עבור המשימה הזו
+    setEditingTask(task);
   };
 
   const handleSaveEdit = async (id, newTitle) => {
-    await updateTask(id, { title: newTitle });
-    setEditingTask(null); // סיום העריכה
-    loadTasks(searchTerm);
+    try {
+      await updateTask(id, { title: newTitle });
+      setEditingTask(null);
+      loadTasks(searchTerm);
+      showMessage("✏️ המשימה עודכנה בהצלחה");
+    } catch {
+      showMessage("❌ שגיאה בעריכת משימה", "error");
+    }
   };
 
   const handleCancelEdit = () => {
-    setEditingTask(null); // ביטול העריכה
+    setEditingTask(null);
   };
 
   if (loading) return <CircularProgress />;
@@ -103,6 +144,23 @@ function TaskListPage() {
             </ListItem>
           ))}
         </List>
+
+        {/* ✅ הודעות */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Stack>
     </Paper>
   );

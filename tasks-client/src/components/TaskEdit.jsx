@@ -7,7 +7,7 @@ const TaskEdit = ({ task, onSave, onCancel }) => {
 
   const handleSave = () => {
     if (editText.trim()) {
-      onSave(task.id, editText); // פונקציית שמירה שהועברה מהקומפוננטה הראשית
+      onSave(task.id, editText); 
     }
   };
 

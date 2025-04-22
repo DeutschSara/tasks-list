@@ -15,7 +15,6 @@ const saveTasksToFile = () => {
     fs.writeFileSync('./tasks.json', JSON.stringify(tasks, null, 2));
   };
   
-//  שליפת כל המשימות לפי סינון 
 app.get('/tasks', (req, res) => {
     const search = req.query.search?.toLowerCase() || "";
     const filteredTasks = tasks.filter(task =>
@@ -25,27 +24,25 @@ app.get('/tasks', (req, res) => {
   });
   
 
-// הוספת משימה
 app.post('/tasks', (req, res) => {
     const newTask = {
       id: Date.now(),
       title: req.body.title,
     };
     tasks.push(newTask);
-    saveTasksToFile(); // ← נשמר לקובץ
+    saveTasksToFile(); 
     res.status(201).json(newTask);
   });
 
 
-// מחיקת משימה
 app.delete('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
     tasks = tasks.filter((task) => task.id !== id);
-    saveTasksToFile(); // ← עדכון הקובץ
+    saveTasksToFile(); 
     res.status(204).send();
   });
-  //  עדכון משימה
-app.put('/tasks/:id', (req, res) => {
+
+  app.put('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
     const updatedTitle = req.body.title;
   
@@ -55,12 +52,11 @@ app.put('/tasks/:id', (req, res) => {
     }
   
     tasks[taskIndex].title = updatedTitle;
-    saveTasksToFile(); // ← עדכון בקובץ
+    saveTasksToFile(); 
     res.json(tasks[taskIndex]);
   });
   
 
-// הרצת השרת
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
