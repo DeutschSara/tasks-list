@@ -53,8 +53,8 @@ tasks-project/
 ### 1. שכפול הריפוזיטורי
 
 ```bash
-git clone https://github.com/your-username/tasks-project.git
-cd tasks-project
+git clone https://github.com/DeutschSara/tasks-list
+cd tasks-list
 ```
 
 ---
