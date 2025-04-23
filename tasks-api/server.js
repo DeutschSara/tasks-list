@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 
 const app = express();
 const PORT = 4000;
@@ -56,7 +59,9 @@ app.delete('/tasks/:id', (req, res) => {
     res.json(tasks[taskIndex]);
   });
   
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+  
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
